@@ -172,3 +172,39 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# --- Additional for Cybersecurity Projects ---
+
+#Secrets & Environment Configs
+.env
+.env.*
+*.env.*
+apikeys.json
+config.json
+
+#PCAP & Trace Files
+*.pcap
+*.pcapng
+*.dump
+*.trace
+!sample_data/*.pcap  # allow example/demo pcap files
+
+#Output and Artifacts
+outputs/
+*.csv
+*.txt
+*.report
+*.log
+
+# IDE/Editor Settings
+.vscode/
+.idea/
+*.code-workspace
+*.sublime-project
+*.sublime-workspace
+
+# Backup & Temp Files
+*.bak
+*.tmp
+*.old
+test-results/
