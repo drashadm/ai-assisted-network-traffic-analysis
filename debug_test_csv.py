@@ -22,4 +22,4 @@ def debug_csv_read(input_csv):
         print(f"[i] Total rows read: {row_count}")
 
 # Test run
-debug_csv_read("C:\Users\poorm\ai-assisted-network-traffic-analysis\debug_test_csv.py")
+debug_csv_read(r"C:\Users\poorm\ai-assisted-network-traffic-analysis\debug_test_csv.py")
