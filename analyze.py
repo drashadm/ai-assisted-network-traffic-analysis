@@ -22,45 +22,60 @@ def analyze_http_traffic(pcap_file, output_file, summary_file=None):
     print(f"[~] Starting analysis on: {pcap_file}")
     start_time = time.time()
 
-    cap = pyshark.FileCapture(pcap_file, display_filter="http")
+    try:
+        cap = pyshark.FileCapture(pcap_file, display_filter="http")
+    except Exception as e:
+        print(f"[!] Error opening file: {e}")
+        return
 
-    # Output: detailed CSV
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    with open(output_file, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=["No", "Source IP", "Destination IP", "Host", "Request URI", "User-Agent"])
-        writer.writeheader()
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_file)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
 
-        user_agents = []
-        request_hosts = []
+    packet_count = 0
+    user_agents = []
+    request_hosts = []
 
-        for packet in cap:
-            data = extract_http_metadata(packet)
-            if data:
-                writer.writerow(data)
-                if data["User-Agent"]:
+    try:
+        with open(output_file, 'w', newline='', encoding='utf-8') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=["No", "Source IP", "Destination IP", "Host", "Request URI", "User-Agent"])
+            writer.writeheader()
+
+            for packet in cap:
+                data = extract_http_metadata(packet)
+                if data:
+                    writer.writerow(data)
+                    packet_count += 1
                     user_agents.append(data["User-Agent"])
-                if data["Host"]:
                     request_hosts.append(data["Host"])
+                    print(f"[+] Packet #{packet_count}: {data['Host']} {data['Request URI']}")
+    except Exception as e:
+        print(f"[!] Error during packet analysis: {e}")
+        return
 
     elapsed = time.time() - start_time
-    print(f"[+] Full HTTP analysis written to {output_file}")
-    print(f"[i] Processed in {elapsed:.2f} seconds")
+    print(f"[i] Total HTTP packets processed: {packet_count}")
+    print(f"[+] Traffic analysis written to {output_file}")
+    print(f"[i] Time taken: {elapsed:.2f} seconds")
 
-    # AI-style summary (automated insights)
-    if summary_file:
-        ua_count = Counter(user_agents)
-        host_count = Counter(request_hosts)
-        with open(summary_file, 'w') as f:
-            f.write("=== AI-Aided HTTP Traffic Summary ===\n\n")
-            f.write("Top 5 Most Frequent User-Agents:\n")
-            for ua, count in ua_count.most_common(5):
-                f.write(f"- {ua}: {count} times\n")
+    # AI-style summary
+    if summary_file and packet_count > 0:
+        try:
+            with open(summary_file, 'w', encoding='utf-8') as f:
+                f.write("=== AI-Aided HTTP Traffic Summary ===\n\n")
 
-            f.write("\nTop 5 Requested Hosts:\n")
-            for host, count in host_count.most_common(5):
-                f.write(f"- {host}: {count} times\n")
+                f.write("Top 5 User-Agents:\n")
+                for ua, count in Counter(user_agents).most_common(5):
+                    f.write(f"- {ua}: {count} times\n")
 
-        print(f"[+] Summary report written to {summary_file}")
+                f.write("\nTop 5 Hosts:\n")
+                for host, count in Counter(request_hosts).most_common(5):
+                    f.write(f"- {host}: {count} times\n")
 
-# Example usage
-# analyze_http_traffic("sample_data/traffic_sample.pcap", "outputs/parsed_output.csv", "outputs/summary.txt")
+            print(f"[+] Summary report written to {summary_file}")
+        except Exception as e:
+            print(f"[!] Error writing summary file: {e}")
+
+# Example usage (uncomment to run directly)
+# analyze_http_traffic("sample_data/forage_investigation.pcapng", "outputs/parsed_output.csv", "outputs/summary.txt")
