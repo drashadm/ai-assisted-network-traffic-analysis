@@ -1,0 +1,4 @@
+No.,Time,Source,Destination,Protocol,Length,Info,Host,Request URI,User-Agent
+1,0.0001,192.168.0.2,93.184.216.34,HTTP,512,GET /index.html,example.com,/index.html,Mozilla/5.0 (Windows NT 10.0; Win64; x64)
+2,0.0054,192.168.0.3,93.184.216.34,HTTP,498,GET /login,login.example.com,/login,curl/7.68.0
+3,0.0103,192.168.0.4,93.184.216.34,HTTP,450,POST /submit,submit.example.com,/submit,Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
